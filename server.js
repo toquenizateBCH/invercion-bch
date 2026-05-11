@@ -1,61 +1,58 @@
 const express = require('express');
-const mysql = require('mysql2');
+const { Pool } = require('pg');
 const cors = require('cors');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// CONFIGURACIÓN DE LA BASE DE DATOS
-// Estos datos los actualizaremos cuando tengas los de Aiven.io
-const db = mysql.createConnection({
-    host: 'TU_HOST_DE_AIVEN', 
-    user: 'TU_USUARIO',
-    password: 'TU_PASSWORD',
-    database: 'defaultdb',
-    port: 25060, // Puerto estándar en Aiven
+// CONFIGURACIÓN DE POSTGRESQL (AIVEN)
+const pool = new Pool({
+    connectionString: "TU_SERVICE_URI_DE_AIVEN",
     ssl: {
-        rejectUnauthorized: false // Necesario para conexiones seguras en la nube
+        rejectUnauthorized: false
     }
 });
 
-db.connect(err => {
-    if (err) {
-        console.error('Error conectando a la base de datos:', err);
-        return;
+// Crear la tabla automáticamente si no existe (Prueba inicial)
+const initDb = async () => {
+    const queryText = `
+    CREATE TABLE IF NOT EXISTS clientes_prueba (
+        id SERIAL PRIMARY KEY,
+        nombre_usuario VARCHAR(50) NOT NULL,
+        billetera_bch VARCHAR(255) NOT NULL,
+        monto_invertido_bch DECIMAL(18, 8) DEFAULT 0,
+        tokens_emitidos INT DEFAULT 0,
+        fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        estado_pago VARCHAR(20) DEFAULT 'pendiente'
+    );`;
+    await pool.query(queryText);
+};
+initDb().then(() => console.log("Tabla lista")).catch(err => console.log(err));
+
+app.get('/api/clientes', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM clientes_prueba');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-    console.log('Conexión exitosa a la base de datos de Inversión BCH');
 });
 
-// RUTA 1: Ver los clientes registrados (Prueba de lectura)
-app.get('/api/clientes', (req, res) => {
-    const sql = "SELECT * FROM clientes_prueba";
-    db.query(sql, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
-});
-
-// RUTA 2: Registrar un nuevo cliente (Prueba de escritura)
-app.post('/api/nueva-compra', (req, res) => {
+app.post('/api/nueva-compra', async (req, res) => {
     const { nombre_usuario, billetera_bch } = req.body;
-    const sql = "INSERT INTO clientes_prueba (nombre_usuario, billetera_bch, estado_pago) VALUES (?, ?, 'pendiente')";
-    
-    db.query(sql, [nombre_usuario, billetera_bch], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ 
-            mensaje: "Cliente registrado con éxito en la prueba", 
-            id: result.insertId 
-        });
-    });
+    try {
+        const result = await pool.query(
+            'INSERT INTO clientes_prueba (nombre_usuario, billetera_bch, estado_pago) VALUES ($1, $2, $3) RETURNING *',
+            [nombre_usuario, billetera_bch, 'pendiente']
+        );
+        res.json({ mensaje: "Cliente registrado", cliente: result.rows[0] });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// RUTA 3: Mensaje de bienvenida en la raíz
-app.get('/', (req, res) => {
-    res.send('Servidor de Inversión BCH - Conjunto P2P funcionando correctamente.');
-});
+app.get('/', (req, res) => res.send('Servidor Inversión BCH funcionando con PostgreSQL'));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor ejecutándose en el puerto ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Puerto: ${PORT}`));
