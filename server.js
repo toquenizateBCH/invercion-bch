@@ -8,7 +8,7 @@ app.use(express.json());
 
 // CONFIGURACIÓN DE POSTGRESQL (AIVEN)
 const pool = new Pool({
-    connectionString: "TU_SERVICE_URI_DE_AIVEN",
+    connectionString: connectionString: "postgres://avnadmin:AVNS_qu9eiPfGxMaHrnVcHF5@pg-3d0f9aae-inversionbch.i.aivencloud.com:22502/defaultdb",,
     ssl: {
         rejectUnauthorized: false
     }
