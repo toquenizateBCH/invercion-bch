@@ -44,7 +44,7 @@
 
         try {
             // REEMPLAZA ESTA URL POR LA TUYA DE RENDER
-            const urlRender = connectionString: "postgres://avnadmin:AVNS_qu9eiPfGxMaHrnVcHF5@pg-3d0f9aae-inversionbch.i.aivencloud.com:22502/defaultdb";
+            const urlRender = connectionString:'https://inversion-bch-backend.onrender.com/api/nueva-compra';
 
             const response = await fetch(urlRender, {
                 method: 'POST',
