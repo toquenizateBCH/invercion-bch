@@ -1,14 +1,14 @@
 {
-  "name": "conjunto-p2p-bch-backend",
+  "name": "inversion-bch-backend",
   "version": "1.0.0",
-  "description": "Backend de prueba para registro de clientes y tokenización",
+  "description": "Backend para Conjunto P2P Bitcoin Cash con PostgreSQL",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "mysql2": "^3.6.0",
+    "pg": "^8.11.3",
     "cors": "^2.8.5"
   },
   "author": "Inversión BCH",
