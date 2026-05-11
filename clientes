@@ -44,7 +44,7 @@
 
         try {
             // REEMPLAZA ESTA URL POR LA TUYA DE RENDER
-            const urlRender = connectionString:'https://inversion-bch-backend.onrender.com/api/nueva-compra';
+            const urlRender = connectionString:'https://invercion-bch-backend.onrender.com/api/nueva-compra';
 
             const response = await fetch(urlRender, {
                 method: 'POST',
