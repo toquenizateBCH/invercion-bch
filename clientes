@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Conjunto P2P Bitcoin Cash</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #f7931a; text-align: center; } /* Color estilo Bitcoin */
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #0ac18e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #089e74; }
+        #mensaje { margin-top: 15px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Inversión BCH</h2>
+    <p>Registro para el Conjunto P2P</p>
+    
+    <form id="registroForm">
+        <input type="text" id="nombre" placeholder="Nombre completo o Usuario" required>
+        <input type="text" id="billetera" placeholder="Dirección de Bitcoin Cash (BCH)" required>
+        <button type="submit">Enviar Registro</button>
+    </form>
+
+    <div id="mensaje"></div>
+</div>
+
+<script>
+    const form = document.getElementById('registroForm');
+    const mensajeDiv = document.getElementById('mensaje');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        mensajeDiv.innerText = "Enviando...";
+
+        const datos = {
+            nombre_usuario: document.getElementById('nombre').value,
+            billetera_bch: document.getElementById('billetera').value
+        };
+
+        try {
+            // REEMPLAZA ESTA URL POR LA TUYA DE RENDER
+            const urlRender = 'https://tu-proyecto.onrender.com/api/nueva-compra';
+
+            const response = await fetch(urlRender, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                mensajeDiv.style.color = "green";
+                mensajeDiv.innerText = "¡Registro exitoso! Ya estás en la base de datos.";
+                form.reset();
+            } else {
+                mensajeDiv.style.color = "red";
+                mensajeDiv.innerText = "Error: " + result.error;
+            }
+        } catch (error) {
+            mensajeDiv.style.color = "red";
+            mensajeDiv.innerText = "No se pudo conectar con el servidor.";
+        }
+    });
+</script>
+
+</body>
+</html>
